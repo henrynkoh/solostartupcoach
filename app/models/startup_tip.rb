@@ -1,0 +1,2 @@
+class StartupTip < ApplicationRecord
+end

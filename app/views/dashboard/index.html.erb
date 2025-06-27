@@ -1,0 +1,79 @@
+<h1>Solo Startup Coach Dashboard</h1>
+
+<% if notice %>
+  <div class="notice"><%= notice %></div>
+<% end %>
+
+<h2>Startup Tips</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Topic</th>
+      <th>Tool</th>
+      <th>Strategy</th>
+      <th>Case Study</th>
+      <th>Sentiment</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @startup_tips.each do |startup_tip| %>
+      <tr>
+        <td><%= startup_tip.topic %></td>
+        <td><%= startup_tip.tool %></td>
+        <td><%= startup_tip.strategy %></td>
+        <td><%= startup_tip.case_study %></td>
+        <td><%= startup_tip.sentiment %></td>
+        <td>
+          <%= link_to 'Generate Script', '#', onclick: "generateScript(#{startup_tip.id})" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h2>Videos</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Topic</th>
+      <th>Script</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @videos.each do |video| %>
+      <tr>
+        <td><%= video.startup_tip.topic %></td>
+        <td><%= video.script %></td>
+        <td><%= video.status %></td>
+        <td>
+          <% if video.status == 'pending' %>
+            <%= button_to 'Approve', approve_video_path(video), method: :post %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<script>
+  function generateScript(startupTipId) {
+    fetch('/api/generate_script', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ startup_tip_id: startupTipId })
+    }).then(response => response.json()).then(data => {
+      if (data.error) {
+        alert('Error: ' + data.error);
+      } else {
+        alert('Script generation started');
+        location.reload();
+      }
+    });
+  }
+</script> 
