@@ -4,7 +4,7 @@ ruby '3.2.2'
 # Core Rails gems
 gem 'bootsnap', require: false
 gem 'puma'
-gem 'rails', '~> 7.1'
+gem 'rails', '~> 8.0'
 gem 'sqlite3'
 
 # Background job processing
