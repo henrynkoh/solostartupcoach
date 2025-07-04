@@ -1,4 +1,4 @@
-require "active_support/core_ext/integer/time"
+require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -16,7 +16,7 @@ Rails.application.configure do
   config.action_controller.perform_caching = true
 
   # Cache assets for far-future expiry since they are all digest stamped.
-  config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
+  config.public_file_server.headers = { 'cache-control' => "public, max-age=#{1.year.to_i}" }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
@@ -31,24 +31,29 @@ Rails.application.configure do
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   # Log to STDOUT with the current request id as a default log tag.
-  config.log_tags = [ :request_id ]
-  config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
+  config.log_tags = [:request_id]
+  config.logger   = ActiveSupport::TaggedLogging.new(Logger.new($stdout))
 
   # Change to "debug" to log everything (including potentially personally-identifiable information!)
-  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'info')
 
   # Prevent health checks from clogging up the logs.
-  config.silence_healthcheck_path = "/up"
+  config.silence_healthcheck_path = '/up'
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Replace the default in-process memory cache store with a durable alternative.
-  config.cache_store = :solid_cache_store
+  # Use Redis for caching in production
+  config.cache_store = :redis_cache_store, {
+    url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/1'),
+    connect_timeout: 30,
+    read_timeout: 0.2,
+    write_timeout: 0.2,
+    reconnect_attempts: 1
+  }
 
-  # Replace the default in-process and non-durable queuing backend for Active Job.
-  config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = { database: { writing: :queue } }
+  # Use Sidekiq for background job processing
+  config.active_job.queue_adapter = :sidekiq
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
@@ -58,7 +63,7 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # Only use :id for inspections in production.
-  config.active_record.attributes_for_inspect = [ :id ]
+  config.active_record.attributes_for_inspect = [:id]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [

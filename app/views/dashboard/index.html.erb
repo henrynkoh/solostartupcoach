@@ -1,79 +1,97 @@
-<h1>Solo Startup Coach Dashboard</h1>
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-4">Solo Startup Coach Dashboard</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Total Tips</h3>
+        <p class="text-3xl font-bold text-blue-600"><%= @stats[:total_tips] %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Total Videos</h3>
+        <p class="text-3xl font-bold text-green-600"><%= @stats[:total_videos] %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Tips with Videos</h3>
+        <p class="text-3xl font-bold text-purple-600"><%= @stats[:tips_with_videos] %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Uploaded Videos</h3>
+        <p class="text-3xl font-bold text-orange-600"><%= @stats[:uploaded_videos] %></p>
+      </div>
+    </div>
+  </div>
 
-<% if notice %>
-  <div class="notice"><%= notice %></div>
-<% end %>
+  <div class="bg-white rounded-lg shadow">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">Latest Startup Tips</h2>
+        <% if user_signed_in? %>
+          <%= link_to 'New Tip', new_api_v1_startup_tip_path, class: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition' %>
+        <% end %>
+      </div>
 
-<h2>Startup Tips</h2>
-<table>
-  <thead>
-    <tr>
-      <th>Topic</th>
-      <th>Tool</th>
-      <th>Strategy</th>
-      <th>Case Study</th>
-      <th>Sentiment</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @startup_tips.each do |startup_tip| %>
-      <tr>
-        <td><%= startup_tip.topic %></td>
-        <td><%= startup_tip.tool %></td>
-        <td><%= startup_tip.strategy %></td>
-        <td><%= startup_tip.case_study %></td>
-        <td><%= startup_tip.sentiment %></td>
-        <td>
-          <%= link_to 'Generate Script', '#', onclick: "generateScript(#{startup_tip.id})" %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead>
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sentiment</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Video Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @startup_tips.each do |tip| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= tip.title %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if tip.sentiment_score %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= tip.sentiment_score >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                      <%= number_with_precision(tip.sentiment_score, precision: 2) %>
+                    </span>
+                  <% else %>
+                    <span class="text-gray-500">Analyzing...</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if tip.video&.youtube_url %>
+                    <%= link_to 'Watch Video', tip.video.youtube_url, target: '_blank', class: 'text-blue-600 hover:text-blue-900' %>
+                  <% elsif tip.video %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                      <%= tip.video.status.titleize %>
+                    </span>
+                  <% else %>
+                    <span class="text-gray-500">No video yet</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= time_ago_in_words(tip.created_at) %> ago
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <% if user_signed_in? %>
+                    <%= link_to 'Edit', edit_api_v1_startup_tip_path(tip), class: 'text-blue-600 hover:text-blue-900' %>
+                    <%= link_to 'Delete', api_v1_startup_tip_path(tip), 
+                        method: :delete,
+                        data: { confirm: 'Are you sure?' },
+                        class: 'ml-3 text-red-600 hover:text-red-900' %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
 
-<h2>Videos</h2>
-<table>
-  <thead>
-    <tr>
-      <th>Topic</th>
-      <th>Script</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @videos.each do |video| %>
-      <tr>
-        <td><%= video.startup_tip.topic %></td>
-        <td><%= video.script %></td>
-        <td><%= video.status %></td>
-        <td>
-          <% if video.status == 'pending' %>
-            <%= button_to 'Approve', approve_video_path(video), method: :post %>
-          <% end %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<script>
-  function generateScript(startupTipId) {
-    fetch('/api/generate_script', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({ startup_tip_id: startupTipId })
-    }).then(response => response.json()).then(data => {
-      if (data.error) {
-        alert('Error: ' + data.error);
-      } else {
-        alert('Script generation started');
-        location.reload();
-      }
-    });
-  }
-</script> 
+      <div class="mt-4">
+        <%= paginate @startup_tips %>
+      </div>
+    </div>
+  </div>
+</div> 

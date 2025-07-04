@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+require "fileutils"
+
+# Test runner for integration tests
+puts "Running Integration Tests for Solo Startup Coach..."
+puts "=" * 50
+
+# Run system tests
+puts "\n1. Running Authentication Flow Tests..."
+system("bin/rails test test/system/authentication_flow_test.rb")
+
+puts "\n2. Running Startup Tips Management Tests..."
+system("bin/rails test test/system/startup_tips_management_test.rb")
+
+puts "\n3. Running Video Generation Flow Tests..."
+system("bin/rails test test/system/video_generation_flow_test.rb")
+
+puts "\n4. Running Dashboard and Analytics Tests..."
+system("bin/rails test test/system/dashboard_and_analytics_test.rb")
+
+puts "\n5. Running API Integration Tests..."
+system("bin/rails test test/system/api_integration_test.rb")
+
+puts "\n6. Running Error Handling and Edge Cases Tests..."
+system("bin/rails test test/system/error_handling_and_edge_cases_test.rb")
+
+puts "\n" + "=" * 50
+puts "Integration Tests Complete!"
+puts "Check the output above for any failures." 

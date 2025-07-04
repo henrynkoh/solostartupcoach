@@ -1,17 +1,45 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  startup_tip: one
-  script: MyString
-  video_path: MyString
-  thumbnail_path: MyString
-  youtube_id: MyString
-  status: MyString
+  title: "Customer Validation Guide"
+  description: "A comprehensive guide on how to validate your startup idea with customers"
+  file_path: "/storage/videos/customer-validation.mp4"
+  file_size: 52428800
+  duration: 180
+  status: "uploaded"
+  youtube_url: "https://youtube.com/watch?v=abc123"
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
 
 two:
-  startup_tip: two
-  script: MyString
-  video_path: MyString
-  thumbnail_path: MyString
-  youtube_id: MyString
-  status: MyString
+  title: "Team Building Strategies"
+  description: "Learn how to build and manage a strong startup team"
+  file_path: "/storage/videos/team-building.mp4"
+  file_size: 78643200
+  duration: 240
+  status: "processing"
+  youtube_url: 
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+three:
+  title: "Cash Flow Management"
+  description: "Essential tips for managing your startup's cash flow"
+  file_path: "/storage/videos/cash-flow.mp4"
+  file_size: 41943040
+  duration: 150
+  status: "failed"
+  youtube_url: 
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+four:
+  title: "Rapid Iteration Methods"
+  description: "How to iterate quickly and pivot when necessary"
+  file_path: "/storage/videos/iteration.mp4"
+  file_size: 62914560
+  duration: 200
+  status: "uploaded"
+  youtube_url: "https://youtube.com/watch?v=def456"
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

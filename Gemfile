@@ -2,33 +2,42 @@ source 'https://rubygems.org'
 ruby '3.2.2'
 
 # Core Rails gems
+gem 'bootsnap', require: false
+gem 'puma'
 gem 'rails', '~> 7.1'
 gem 'sqlite3'
-gem 'puma'
-gem 'bootsnap', require: false
 
 # Background job processing
 gem 'sidekiq'
 gem 'sidekiq-scheduler'
 
 # API and web scraping
-gem 'nokogiri'
-gem 'httparty'
 gem 'google-apis-youtube_v3'
+gem 'httparty'
+gem 'nokogiri'
 
 # Environment variables and configuration
 gem 'dotenv-rails'
 
 # Frontend
 gem 'importmap-rails'
-gem 'turbo-rails'
-gem 'stimulus-rails'
 gem 'jbuilder'
+gem 'stimulus-rails'
+gem 'turbo-rails'
+
+# JavaScript and UI
+gem 'actiontext'
+gem 'chartkick'
+gem 'groupdate'
+gem 'image_processing'
 
 # Development tools
 group :development do
   gem 'debug'
   gem 'web-console'
+  
+  # Documentation
+  gem 'yard'
 end
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
@@ -72,8 +81,28 @@ group :development, :test do
   # gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-  # gem "brakeman", require: false
+  gem "brakeman", require: false
 
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
-  # gem "rubocop-rails-omakase", require: false
+  # Ruby style checking and code analyzer
+  gem 'rubocop', require: false
+  gem 'rubocop-performance', require: false
+  gem 'rubocop-rails', require: false
+end
+
+# Security
+gem 'bcrypt'
+gem 'devise'
+gem 'devise-security'
+gem 'devise-two-factor'
+gem 'rack-attack'
+gem 'secure_headers'
+
+# Cache and Background Jobs
+gem 'connection_pool'
+gem 'hiredis'
+gem 'redis', '>= 4.0.1'
+
+group :test do
+  gem 'capybara'
+  gem 'webdrivers'
 end

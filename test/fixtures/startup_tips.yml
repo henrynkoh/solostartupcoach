@@ -1,17 +1,33 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  topic: MyString
-  tool: MyString
-  strategy: MyText
-  case_study: MyText
-  sentiment: MyString
-  source_url: MyString
+  title: "Focus on Customer Validation"
+  content: "Before building your product, validate that customers actually want it. Talk to potential users, conduct surveys, and build a minimum viable product (MVP) to test your assumptions."
+  source_url: "https://example.com/customer-validation"
+  sentiment_score: 0.8
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
 
 two:
-  topic: MyString
-  tool: MyString
-  strategy: MyText
-  case_study: MyText
-  sentiment: MyString
-  source_url: MyString
+  title: "Build a Strong Team"
+  content: "Surround yourself with talented people who share your vision. A great team can make or break your startup. Look for complementary skills and cultural fit."
+  source_url: "https://example.com/team-building"
+  sentiment_score: 0.9
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+three:
+  title: "Manage Cash Flow Carefully"
+  content: "Cash flow is the lifeblood of your startup. Monitor it closely, have a runway plan, and be prepared for unexpected expenses. Don't run out of money."
+  source_url: "https://example.com/cash-flow"
+  sentiment_score: -0.2
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+four:
+  title: "Iterate Quickly"
+  content: "Don't get attached to your first idea. Be willing to pivot based on customer feedback and market conditions. Speed of iteration is crucial."
+  source_url: "https://example.com/iteration"
+  sentiment_score: 0.6
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

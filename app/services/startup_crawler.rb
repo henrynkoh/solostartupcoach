@@ -5,11 +5,13 @@ class StartupCrawler
   def crawl
     startup_tips = crawl_tech_news_and_tools
     startup_tips.each do |tip|
+      next if StartupTip.exists?(topic: tip[:topic])
+
       StartupTip.create!(
         topic: tip[:topic],
         tool: tip[:tool],
         source_url: tip[:source_url]
-      ) unless StartupTip.exists?(topic: tip[:topic])
+      )
     end
   rescue StandardError => e
     Rails.logger.error("Startup crawling failed: #{e.message}")
@@ -33,4 +35,4 @@ class StartupCrawler
       }
     ]
   end
-end 
+end

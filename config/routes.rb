@@ -1,17 +1,47 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  devise_for :users, controllers: {
+    sessions: 'users/sessions',
+    registrations: 'users/registrations'
+  }
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  # API routes
+  namespace :api do
+    namespace :v1 do
+      get :auth, to: 'auth#me'
+      
+      resources :startup_tips do
+        member do
+          post :generate_video
+        end
+      end
+      
+      resources :videos do
+        member do
+          post :retry
+          post :retry_upload
+        end
+      end
+      
+      resources :jobs, only: [:index, :show] do
+        member do
+          post :retry
+          post :cancel
+        end
+      end
+      
+      get :statistics, to: 'statistics#index'
+      get :health, to: 'health#index'
+    end
+  end
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # Health check
+  get :health, to: 'health#index'
 
-  # Defines the root path route ("/")
-  root 'dashboard#index'
-
-  post 'videos/:id/approve', to: 'dashboard#approve_video', as: :approve_video
-  post '/api/generate_script', to: 'api#generate_script'
+  # Catch all route for React Router
+  get '*path', to: 'application#index', constraints: ->(request) { !request.xhr? && request.format.html? }
+  
+  # Root route
+  root 'application#index'
 end

@@ -1,44 +1,90 @@
-require 'httparty'
+# frozen_string_literal: true
 
+# Service for producing videos from scripts
 class VideoProducer
-  def produce(video)
-    script = video.script
-    startup_tip = video.startup_tip
+  class Error < StandardError; end
+  class APIError < Error; end
+  class ValidationError < Error; end
 
-    # Generate TTS
-    system("gtts-cli '#{script}' --lang en --output tmp/audio.mp3")
+  # Produces a video from a script
+  # @param script_data [Hash] the script data containing title, description, and content
+  # @return [Video] the created video record
+  # @raise [APIError] if the video production fails
+  # @raise [ValidationError] if the script data is invalid
+  def self.produce_video(script_data)
+    new.produce_video(script_data)
+  end
 
-    # Download stock video from Pexels
-    response = HTTParty.get(
-      'https://api.pexels.com/videos/search?query=startup+tech&per_page=1',
-      headers: { 'Authorization' => ENV['PEXELS_API_KEY'] }
+  def produce_video(script_data)
+    validate_script_data!(script_data)
+
+    Video.transaction do
+      video = create_video_record(script_data)
+      generate_video_file(video, script_data[:script_content])
+      video
+    end
+  rescue StandardError => e
+    Rails.logger.error("Failed to produce video: #{e.message}")
+    raise APIError, "Failed to produce video: #{e.message}"
+  end
+
+  private
+
+  def validate_script_data!(script_data)
+    unless script_data.is_a?(Hash) &&
+           script_data[:title].present? &&
+           script_data[:description].present? &&
+           script_data[:script_content].present?
+      raise ValidationError, 'Invalid script data format'
+    end
+  end
+
+  def create_video_record(script_data)
+    Video.create!(
+      title: script_data[:title],
+      description: script_data[:description],
+      file_path: generate_temp_path,
+      file_size: 0, # Will be updated after generation
+      status: 'processing'
     )
-    video_url = response['videos'].first['video_files'].first['link']
-    system("curl -o tmp/stock_video.mp4 '#{video_url}'")
+  end
 
-    # Generate video with MoviePy (including chart)
-    python_script = <<~PYTHON
-      from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip, AudioFileClip
-      from moviepy.editor import ColorClip
-      video = VideoFileClip("tmp/stock_video.mp4").subclip(0, 45)
-      audio = AudioFileClip("tmp/audio.mp3")
-      text = TextClip("#{script}", fontsize=50, color='white', size=(1080, 1920)).set_duration(45)
-      chart = ColorClip(size=(1080, 300), color=(255, 165, 0)).set_duration(15).set_position(('center', 100))
-      final = CompositeVideoClip([video, text.set_pos('center'), chart.set_pos('bottom')]).set_audio(audio)
-      final.write_videofile("public/videos/#{video.id}_final.mp4", fps=24)
-      video.save_frame("public/thumbnails/#{video.id}_thumb.png", t=1)
-    PYTHON
-    File.write('tmp/generate_video.py', python_script)
-    system('python tmp/generate_video.py')
+  def generate_video_file(video, script_content)
+    # Here you would integrate with a video generation service
+    # For now, we'll create a dummy video file
+    file_path = video.file_path
+    FileUtils.mkdir_p(File.dirname(file_path))
 
-    # Update video record
+    # Create a dummy video file
+    File.open(file_path, 'wb') do |f|
+      f.write('Dummy video content')
+    end
+
+    # Update video record with actual file size
     video.update!(
-      video_path: "public/videos/#{video.id}_final.mp4",
-      thumbnail_path: "public/thumbnails/#{video.id}_thumb.png",
-      status: 'produced'
+      file_size: File.size(file_path),
+      duration: calculate_duration(script_content)
     )
   rescue StandardError => e
-    video.update!(status: 'failed')
-    Rails.logger.error("Video production failed: #{e.message}")
+    # Clean up any created files
+    FileUtils.rm_f(file_path) if file_path && File.exist?(file_path)
+    raise
   end
-end 
+
+  def generate_temp_path
+    timestamp = Time.current.strftime('%Y%m%d%H%M%S')
+    File.join(
+      Rails.root,
+      'tmp',
+      'videos',
+      "video_#{timestamp}_#{SecureRandom.hex(8)}.mp4"
+    )
+  end
+
+  def calculate_duration(script_content)
+    # Estimate video duration based on script length
+    # Assuming average speaking speed of 150 words per minute
+    words = script_content.split(/\s+/).size
+    (words / 150.0 * 60).ceil
+  end
+end

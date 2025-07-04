@@ -7,4 +7,4 @@ class CrawlStartupTipsJob < ApplicationJob
       AnalyzeStartupTipsJob.perform_later(StartupTip.find_by(topic: tip[:topic]).id)
     end
   end
-end 
+end
